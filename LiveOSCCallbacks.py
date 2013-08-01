@@ -137,7 +137,7 @@ class LiveOSCCallbacks:
         """
         track = msg[2]
         clip = msg[3]
-        c = LiveUtils.getSong().visible_tracks[track].clip_slots[clip].clip
+        c = LiveUtils.getSong().tracks[track].clip_slots[clip].clip
         
         if len(msg) == 4:
             self.oscEndpoint.send("/live/clip/signature", (track, clip, c.signature_numerator, c.signature_denominator))
@@ -155,11 +155,11 @@ class LiveOSCCallbacks:
         
         
         if len(msg) == 4:
-            state = LiveUtils.getSong().visible_tracks[track].clip_slots[clip].clip.warping
+            state = LiveUtils.getSong().tracks[track].clip_slots[clip].clip.warping
             self.oscEndpoint.send("/live/clip/warping", (track, clip, int(state)))
         
         elif len(msg) == 5:
-            LiveUtils.getSong().visible_tracks[track].clip_slots[clip].clip.warping = msg[4]
+            LiveUtils.getSong().tracks[track].clip_slots[clip].clip.warping = msg[4]
 
     def selectionCB(self, msg, source):
         """ Called when a /live/selection message is received
@@ -181,8 +181,8 @@ class LiveOSCCallbacks:
             
                 self.oscEndpoint.send("/live/return/crossfader", (track, str(assign), str(name)))
             else:
-                assign = LiveUtils.getSong().visible_tracks[track].mixer_device.crossfade_assign
-                name   = LiveUtils.getSong().visible_tracks[track].mixer_device.crossfade_assignments.values[assign]
+                assign = LiveUtils.getSong().tracks[track].mixer_device.crossfade_assign
+                name   = LiveUtils.getSong().tracks[track].mixer_device.crossfade_assignments.values[assign]
             
                 self.oscEndpoint.send("/live/track/crossfader", (track, str(assign), str(name)))
 
@@ -194,7 +194,7 @@ class LiveOSCCallbacks:
             if ty == 1:
                 LiveUtils.getSong().return_tracks[track].mixer_device.crossfade_assign = assign
             else:
-                LiveUtils.getSong().visible_tracks[track].mixer_device.crossfade_assign = assign
+                LiveUtils.getSong().tracks[track].mixer_device.crossfade_assign = assign
 
     def tempoCB(self, msg, source):
         """Called when a /live/tempo message is received.
@@ -734,7 +734,7 @@ class LiveOSCCallbacks:
             if ty == 1:
                 sends = LiveUtils.getSong().return_tracks[track].mixer_device.sends
             else:
-                sends = LiveUtils.getSong().visible_tracks[track].mixer_device.sends
+                sends = LiveUtils.getSong().tracks[track].mixer_device.sends
                 
             so = [track]
             for i in range(len(sends)):
@@ -881,7 +881,7 @@ class LiveOSCCallbacks:
             if ty == 1:
                 track = LiveUtils.getSong().return_tracks[track_num]
             else:
-                track = LiveUtils.getSong().visible_tracks[track_num]
+                track = LiveUtils.getSong().tracks[track_num]
                 
             LiveUtils.getSong().view.selected_track = track
             Live.Application.get_application().view.show_view("Detail/DeviceChain")
@@ -907,7 +907,7 @@ class LiveOSCCallbacks:
         Messages:
         /live/clip/view     (int track, int clip)      Selects a track to view
         """
-        track = LiveUtils.getSong().visible_tracks[msg[2]]
+        track = LiveUtils.getSong().tracks[msg[2]]
         
         if len(msg) == 4:
             clip  = msg[3]
@@ -943,7 +943,7 @@ class LiveOSCCallbacks:
             if ty == 1:
                 track = LiveUtils.getSong().return_tracks[track_num]
             else:
-                track = LiveUtils.getSong().visible_tracks[track_num]
+                track = LiveUtils.getSong().tracks[track_num]
 
             LiveUtils.getSong().view.selected_track = track
             LiveUtils.getSong().view.select_device(track.devices[msg[3]])
@@ -1017,7 +1017,7 @@ class LiveOSCCallbacks:
             if ty == 1:
                 params = LiveUtils.getSong().return_tracks[track].devices[device].parameters
             else:
-                params = LiveUtils.getSong().visible_tracks[track].devices[device].parameters
+                params = LiveUtils.getSong().tracks[track].devices[device].parameters
     
             for i in range(len(params)):
                 po.append(i)
@@ -1033,7 +1033,7 @@ class LiveOSCCallbacks:
             if ty == 1:
                 p = LiveUtils.getSong().return_tracks[track].devices[device].parameters[param]
             else: 
-                p = LiveUtils.getSong().visible_tracks[track].devices[device].parameters[param]
+                p = LiveUtils.getSong().tracks[track].devices[device].parameters[param]
         
             self.oscEndpoint.send(ty == 1 and "/live/return/device/param" or "/live/device/param", (track, device, param, p.value, str(p.name)))
     
@@ -1046,7 +1046,7 @@ class LiveOSCCallbacks:
             if ty == 1:
                 LiveUtils.getSong().return_tracks[track].devices[device].parameters[param].value = value
             else:
-                LiveUtils.getSong().visible_tracks[track].devices[device].parameters[param].value = value
+                LiveUtils.getSong().tracks[track].devices[device].parameters[param].value = value
 
     def devicerangeCB(self, msg, source):
         ty = msg[0] == '/live/return/device/range' and 1 or 0
@@ -1059,7 +1059,7 @@ class LiveOSCCallbacks:
             if ty == 1:
                 params = LiveUtils.getSong().return_tracks[track].devices[device].parameters
             else:
-                params = LiveUtils.getSong().visible_tracks[track].devices[device].parameters
+                params = LiveUtils.getSong().tracks[track].devices[device].parameters
     
             for i in range(len(params)):
                 po.append(i)
@@ -1075,7 +1075,7 @@ class LiveOSCCallbacks:
             if ty == 1:
                 p = LiveUtils.getSong().return_tracks[track].devices[device].parameters[param]
             else: 
-                p = LiveUtils.getSong().visible_tracks[track].devices[device].parameters[param]
+                p = LiveUtils.getSong().tracks[track].devices[device].parameters[param]
         
             self.oscEndpoint.send(ty == 1 and "/live/return/device/range" or "/live/device/range", (track, device, param, p.min, p.max))
                 
@@ -1090,7 +1090,7 @@ class LiveOSCCallbacks:
             if ty == 1:
                 devices = LiveUtils.getSong().return_tracks[track].devices
             else:
-                devices = LiveUtils.getSong().visible_tracks[track].devices
+                devices = LiveUtils.getSong().tracks[track].devices
         
             for i in range(len(devices)):
                 do.append(i)

@@ -66,8 +66,8 @@ class LiveOSC:
         log("LiveOSC initialized")
         
         # Visible tracks listener
-        if self.song().visible_tracks_has_listener(self.refresh_state) != 1:
-            self.song().add_visible_tracks_listener(self.refresh_state)
+        if self.song().tracks_has_listener(self.refresh_state) != 1:
+            self.song().add_tracks_listener(self.refresh_state)
         
 ######################################################################
 # Standard Ableton Methods
@@ -186,7 +186,7 @@ class LiveOSC:
         return self._LiveOSC__c_instance.handle()
             
     def getslots(self):
-        tracks = self.song().visible_tracks
+        tracks = self.song().tracks
 
         clipSlots = []
         for track in tracks:
@@ -195,7 +195,7 @@ class LiveOSC:
 
     def trBlock(self, trackOffset, blocksize):
         block = []
-        tracks = self.song().visible_tracks
+        tracks = self.song().tracks
         
         for track in range(0, blocksize):
             block.extend([str(tracks[trackOffset+track].name)])                            
@@ -214,7 +214,7 @@ class LiveOSC:
         self.rem_device_listeners()
         self.rem_transport_listener()
         
-        self.song().remove_visible_tracks_listener(self.refresh_state)
+        self.song().remove_tracks_listener(self.refresh_state)
         
         self.oscEndpoint.send('/remix/oscserver/shutdown', 1)
         self.oscEndpoint.shutdown()
@@ -235,7 +235,7 @@ class LiveOSC:
         trackNumber = 0
         clipNumber = 0
        
-        for track in self.song().visible_tracks:
+        for track in self.song().tracks:
             bundle = OSC.OSCBundle()
             bundle.append("/live/name/track", (trackNumber, str(track.name)))
             for clipSlot in track.clip_slots:
@@ -246,7 +246,7 @@ class LiveOSC:
             trackNumber = trackNumber + 1
             self.oscEndpoint.sendMessage(bundle)
         
-        self.trBlock(0, len(self.song().visible_tracks))
+        self.trBlock(0, len(self.song().tracks))
 
 ######################################################################
 # Add / Remove Listeners   
@@ -268,7 +268,7 @@ class LiveOSC:
 
     def track_change(self):
         selected_track = self.song().view.selected_track
-        tracks = self.song().visible_tracks
+        tracks = self.song().tracks
         index = 0
         selected_index = 0
         for track in tracks:
@@ -548,7 +548,7 @@ class LiveOSC:
         self.add_meter_listener(0, tr, 2)
         
         # Normal Tracks
-        tracks = self.song().visible_tracks
+        tracks = self.song().tracks
         for track in range(len(tracks)):
             tr = tracks[track]
 
