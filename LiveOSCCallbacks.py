@@ -662,29 +662,34 @@ class LiveOSCCallbacks:
 			log("no cache found, creating")
 			self.filterClipsCacheCB()
 
-		t0 = time.time()
-		note_names = msg[2:]
-		log("filtering clips according to %s" % note_names)
-		log("nametomidi is %s" % nametomidi)
-		target = [ nametomidi(note) for note in note_names ]
-		log("target: %s" % target)
+		try:
+			t0 = time.time()
+			note_names = msg[2:]
+			log("filtering clips according to %s" % note_names)
+			log("nametomidi is %s" % nametomidi)
+			target = [ nametomidi(note) for note in note_names ]
+			log("target: %s" % target)
 
-		for track_index, track in enumerate(LiveUtils.getTracks()):
-			for clip_index, slot in enumerate(track.clip_slots):
-				if slot.clip != None:
+			for track_index, track in enumerate(LiveUtils.getTracks()):
+				for clip_index, slot in enumerate(track.clip_slots):
+					if slot.clip != None:
 
-					notes = self.clip_notes_cache[track_index][clip_index]
-					# log(" - found notes: %s" % notes)
+						notes = self.clip_notes_cache[track_index][clip_index]
+						# log(" - found notes: %s" % notes)
 
-					if notes:
-						# don't transpose for now
-						acceptable, bend = filter_tone_row(notes, target, 0)
-						if acceptable:
-							slot.clip.muted = False
-							# slot.clip.pitch_coarse = bend
-							log("[%s] notes %s; acceptable %s, bend %d" % (slot.clip, notes, acceptable, bend))
-						else:
-							slot.clip.muted = True
+						if notes:
+							# don't transpose for now
+							acceptable, bend = filter_tone_row(notes, target, 0)
+							if acceptable:
+								slot.clip.muted = False
+								# slot.clip.pitch_coarse = bend
+								log("[%s] notes %s; acceptable %s, bend %d" % (slot.clip, notes, acceptable, bend))
+							else:
+								slot.clip.muted = True
+		except:
+			log("filtering failed; rebuilding cache")
+			self.filterClipsCacheCB()
+
 		log("filtered clips (took %.3fs)" % (time.time() - t0))
 
 	def filterClipsCB_old(self, msg, source):
