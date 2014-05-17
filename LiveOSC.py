@@ -728,7 +728,7 @@ class LiveOSC:
         #log("Slot changed" + str(self.clips[tid][cid]))
     
     def clip_changestate(self, clip, x, y):
-        log("Listener: x: " + str(x) + " y: " + str(y));
+        log("Listener: x: " + str(x) + " y: " + str(y) + " (not sending - DJJ)");
 
         playing = 1
         
@@ -738,7 +738,8 @@ class LiveOSC:
         if clip.is_triggered == 1:
             playing = 3
             
-        self.oscEndpoint.send('/live/clip/info', (x, y, playing))
+		# DJJ: DON'T SEND CLIP INFO
+        # self.oscEndpoint.send('/live/clip/info', (x, y, playing))
         
         #log("Clip changed x:" + str(x) + " y:" + str(y) + " status:" + str(playing)) 
         
