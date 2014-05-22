@@ -638,10 +638,11 @@ class LiveOSCCallbacks:
 				for clip_index, slot in enumerate(track.clip_slots):
 					if slot.clip is not None:
 
-						match = re.search("(^|[_-])([A-G][A-G#b12-]*)$", slot.clip.name)
+						# match = re.search("(^|[_-])([A-G][A-G#b1-9-]*)$", slot.clip.name)
+						match = re.search("([_-])([A-G][A-G#b1-9-]*)$", slot.clip.name)
 						if match:
 							notes_found_str = match.group(2)
-							notes_found_str = re.sub("[12]", "", notes_found_str)
+							notes_found_str = re.sub("[1-9]", "", notes_found_str)
 							notes_found = notes_found_str.split("-")
 							notes = [ nametomidi(note) for note in notes_found ]
 
@@ -1381,3 +1382,5 @@ class LiveOSCCallbacks:
 				index = (index + 1) % len(outputs)
 				track.current_output_routing = "Ext. Out"
 				track.current_output_sub_routing = str(output)
+				track.mixer_device.sends[0].value = 0.5
+				#  LiveUtils.getSong().return_tracks[track].mixer_device.sends[send].value = leve

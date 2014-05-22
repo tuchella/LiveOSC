@@ -728,7 +728,7 @@ class LiveOSC:
         #log("Slot changed" + str(self.clips[tid][cid]))
     
     def clip_changestate(self, clip, x, y):
-        log("Listener: x: " + str(x) + " y: " + str(y) + " (not sending - DJJ)");
+        # log("Listener: x: " + str(x) + " y: " + str(y) + " (not sending - DJJ)");
 
         playing = 1
         
