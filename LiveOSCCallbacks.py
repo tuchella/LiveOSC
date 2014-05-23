@@ -630,6 +630,7 @@ class LiveOSCCallbacks:
 			
 	def filterClipsCacheCB(self, msg = None, source = None):
 		self.clip_notes_cache = {}
+		self.clip_tone_row_cache = {}
 		log("making clip filter cache")
 		t0 = time.time()
 		try:
@@ -668,27 +669,31 @@ class LiveOSCCallbacks:
 			note_names = msg[2:]
 			log("filtering clips according to %s" % note_names)
 			log("nametomidi is %s" % nametomidi)
-			target = [ nametomidi(note) for note in note_names ]
-			log("target: %s" % target)
+			target = tuple(nametomidi(note) for note in note_names)
+			# log("target: %s" % target)
 
-			for track_index, track in enumerate(LiveUtils.getTracks()):
-				for clip_index, slot in enumerate(track.clip_slots):
-					if slot.clip != None:
+			clip_states = {}
+			if target in self.clip_tone_row_cache:
+				log(" - found cached")
+				clip_states = self.clip_tone_row_cache[target]
+			else:
+				log(" - not found in cache, calculating")
+				for track_index, track in enumerate(LiveUtils.getTracks()):
+					for clip_index, slot in enumerate(track.clip_slots):
+						if slot.clip != None:
+							notes = self.clip_notes_cache[track_index][clip_index]
+							# log(" - found notes: %s" % notes)
 
-						notes = self.clip_notes_cache[track_index][clip_index]
-						# log(" - found notes: %s" % notes)
+							if notes:
+								# don't transpose for now
+								acceptable, bend = filter_tone_row(notes, target, 0)
+								clip_states[slot.clip] = acceptable
+				self.clip_tone_row_cache[target] = clip_states
 
-						if notes:
-							# don't transpose for now
-							acceptable, bend = filter_tone_row(notes, target, 0)
-							if acceptable:
-								slot.clip.muted = False
-								# slot.clip.pitch_coarse = bend
-								log("[%s] notes %s; acceptable %s, bend %d" % (slot.clip, notes, acceptable, bend))
-							else:
-								slot.clip.muted = True
-		except:
-			log("filtering failed; rebuilding cache")
+			for clip, acceptable in clip_states.items():
+				clip.muted = not acceptable
+		except Exception, e:
+			log("filtering failed (%s); rebuilding cache" % e)
 			self.filterClipsCacheCB()
 
 		log("filtered clips (took %.3fs)" % (time.time() - t0))
@@ -1382,5 +1387,5 @@ class LiveOSCCallbacks:
 				index = (index + 1) % len(outputs)
 				track.current_output_routing = "Ext. Out"
 				track.current_output_sub_routing = str(output)
-				track.mixer_device.sends[0].value = 0.5
+				track.mixer_device.sends[0].value = 1.0
 				#  LiveUtils.getSong().return_tracks[track].mixer_device.sends[send].value = leve
