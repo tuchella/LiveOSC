@@ -738,8 +738,9 @@ class LiveOSC:
         if clip.is_triggered == 1:
             playing = 3
             
-		# DJJ: DON'T SEND CLIP INFO
-        # self.oscEndpoint.send('/live/clip/info', (x, y, playing))
+		# DJJ: DON'T SEND CLIP INFO (was causing delays)
+		# DJJ 2015-09-14: Send it again (we want it for Boags)
+        self.oscEndpoint.send('/live/clip/info', (x, y, playing))
         
         #log("Clip changed x:" + str(x) + " y:" + str(y) + " status:" + str(playing)) 
         
@@ -796,7 +797,7 @@ class LiveOSC:
                 else:
                     self.oscEndpoint.send('/live/return/meter', (tid, 1, float(track.output_meter_right)))        
         else:
-            if self.check_md(4):
+            if self.check_md(4) and False:
                 if lr == 0:
                     self.oscEndpoint.send('/live/track/meter', (tid, 0, float(track.output_meter_left)))
                 else:
