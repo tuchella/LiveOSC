@@ -29,8 +29,11 @@ import sys
 import re
 import time
 
-sys.path.insert(0, "/Dropbox/Code/isobar/isobar")
-from util import *
+try:
+	sys.path.insert(0, "/Dropbox/Code/isobar/isobar")
+	from util import *
+except:
+	pass
 
 from Logger import log
 
