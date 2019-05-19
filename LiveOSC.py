@@ -297,7 +297,6 @@ class LiveOSC:
     def add_tempo_listener(self):
         self.rem_tempo_listener()
     
-        print "add tempo listener"
         if self.song().tempo_has_listener(self.tempo_change) != 1:
             self.song().add_tempo_listener(self.tempo_change)
         
