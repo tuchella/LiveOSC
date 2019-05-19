@@ -144,9 +144,7 @@ class LiveOSCCallbacks:
 
         self.callbackManager.add("/live/deactivate", self.deactivateCB)
         self.callbackManager.add("/live/clear_inactive", self.clearInactiveCB)
-        self.callbackManager.add("/live/filter_clips_cache", self.filterClipsCacheCB)
         self.callbackManager.add("/live/filter_clips", self.filterClipsCB)
-        self.callbackManager.add("/live/filter_clips_old", self.filterClipsCB_old)
         self.callbackManager.add("/live/distribute_groups", self.distributeGroupsCB)
         self.clip_notes_cache = {}
 
@@ -631,37 +629,6 @@ class LiveOSCCallbacks:
                 if slot.clip != None and slot.clip.muted:
                     slot.delete_clip()
             
-    def filterClipsCacheCB(self, msg = None, source = None):
-        self.clip_notes_cache = {}
-        self.clip_tone_row_cache = {}
-        log("making clip filter cache")
-        t0 = time.time()
-        try:
-            for track_index, track in enumerate(LiveUtils.getTracks()):
-                self.clip_notes_cache[track_index] = {}
-                for clip_index, slot in enumerate(track.clip_slots):
-                    if slot.clip is not None:
-
-                        # match = re.search("(^|[_-])([A-G][A-G#b1-9-]*)$", slot.clip.name)
-                        match = re.search("([_-])([A-G][A-G#b1-9-]*)$", slot.clip.name)
-                        if match:
-                            notes_found_str = match.group(2)
-                            notes_found_str = re.sub("[1-9]", "", notes_found_str)
-                            notes_found = notes_found_str.split("-")
-                            notes = [ nametomidi(note) for note in notes_found ]
-
-                            # in case we have spurious/nonsense notes, filter them out
-                            notes = filter(lambda n: n is not None, notes)
-                            # log(" - %s: found notes: %s" % (slot.clip.name, notes))
-
-                            self.clip_notes_cache[track_index][clip_index] = notes
-                        else:
-                            self.clip_notes_cache[track_index][clip_index] = None
-                            slot.clip.muted = False
-            log("filtered clips (took %.3fs)" % (time.time() - t0))
-        except Exception, e:
-            log("Exception: %s" % e)
-
     def filterClipsCB(self, msg, source):
         if not self.clip_notes_cache:
             log("no cache found, creating")
@@ -673,7 +640,6 @@ class LiveOSCCallbacks:
             log("filtering clips according to %s" % note_names)
             log("nametomidi is %s" % nametomidi)
             target = tuple(nametomidi(note) for note in note_names)
-            # log("target: %s" % target)
 
             clip_states = {}
             if target in self.clip_tone_row_cache:
@@ -701,45 +667,6 @@ class LiveOSCCallbacks:
 
         log("filtered clips (took %.3fs)" % (time.time() - t0))
 
-    def filterClipsCB_old(self, msg, source):
-        try:
-            t0 = time.time()
-            note_names = msg[2:]
-            log("filtering clips according to %s" % note_names)
-            log("nametomidi is %s" % nametomidi)
-            target = [ nametomidi(note) for note in note_names ]
-            log("target: %s" % target)
-
-            for track in LiveUtils.getTracks():
-                for slot in track.clip_slots:
-                    if slot.clip != None:
-                        log(" - clip: %s" % slot.clip.name)
-                        match = re.search("(^|[_-])([A-G][A-G#b12-]*)$", slot.clip.name)
-                        if match:
-                            notes_found_str = match.group(2)
-                            notes_found_str = re.sub("[12]", "", notes_found_str)
-                            log(" - match: %s" % notes_found_str)
-                            notes_found = notes_found_str.split("-")
-                            notes = [ nametomidi(note) for note in notes_found ]
-
-                            # in case we have spurious/nonsense notes, filter them out
-                            notes = filter(lambda n: n is not None, notes)
-                            # log(" - found notes: %s" % notes)
-
-                            # don't transpose for now
-                            acceptable, bend = filter_tone_row(notes, target, 0)
-                            if acceptable:
-                                slot.clip.muted = False
-                                # slot.clip.pitch_coarse = bend
-                                log("[%s] notes %s; acceptable %s, bend %d" % (slot.clip, notes, acceptable, bend))
-                            else:
-                                slot.clip.muted = True
-                        else:
-                            slot.clip.muted = False
-            log("filtered clips (took %.3fs)" % (time.time() - t0))
-        except Exception, e:
-            log("Exception: %s" % e)
-            
     def soloTrackCB(self, msg, source):
         """Called when a /live/solo message is received.
 
@@ -1379,16 +1306,13 @@ class LiveOSCCallbacks:
         LiveUtils.getSong().clip_trigger_quantization = quant
 
     def distributeGroupsCB(self, msg, source):
-        log("distributeGroupsCB2")
-        outputs = range(1, 66)
+        outputs = range(1, 64)
         index = 0
         for track in LiveUtils.getTracks():
-            log("track %s" % track)
             if track.is_foldable:
-                log(" - group track %s, sub routing = %s" % (track, track.current_output_sub_routing))
                 output = outputs[index]
                 index = (index + 1) % len(outputs)
+                log(" - rerouting group track %s (%d), current subrouting = %s" % (track, index, track.current_output_sub_routing))
                 track.current_output_routing = "Ext. Out"
                 track.current_output_sub_routing = str(output)
                 track.mixer_device.sends[0].value = 1.0
-                #  LiveUtils.getSong().return_tracks[track].mixer_device.sends[send].value = leve
