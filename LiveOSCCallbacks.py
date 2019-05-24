@@ -1334,8 +1334,11 @@ class LiveOSCCallbacks:
             LiveUtils.getClip(trackNumber, clipNumber).loop_end =  loopEnd
 
     def quantizationCB(self, msg, source):
-        quant = msg[2]
-        LiveUtils.getSong().clip_trigger_quantization = quant
+        if len(msg) == 2 or (len(msg) == 3 and msg[2] == "query"):
+            self.oscEndpoint.send("/live/quantization", int(LiveUtils.getSong().clip_trigger_quantization))
+        
+        elif len(msg) == 3:
+            LiveUtils.getSong().clip_trigger_quantization = msg[2]
 
     def distributeGroupsCB(self, msg, source):
         outputs = range(1, 64)
