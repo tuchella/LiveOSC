@@ -616,12 +616,10 @@ class LiveOSCCallbacks:
                 self.oscEndpoint.send("/live/mute", (track, int(status)))
 
     def deactivateCB(self, msg, source):
-        log("deactivating")
         for track in LiveUtils.getTracks():
             for slot in track.clip_slots:
                 if slot.clip != None:
                     slot.clip.muted = True
-        log("deactivated")
 
     def clearInactiveCB(self, msg, source):
         log("clearing inactive")
@@ -887,7 +885,6 @@ class LiveOSCCallbacks:
         /live/track/info     (int track)   Returns clip slot status' for all clips in a track in the form /live/track/info (tracknumber, armed  (clipnumber, state, length))
                                            [state: 1 = Has Clip, 2 = Playing, 3 = Triggered]
         """
-        
         clipslots = LiveUtils.getClipSlots()
         
         new = []
@@ -902,8 +899,9 @@ class LiveOSCCallbacks:
             tracknum = tracknum + 1
             clipnum = -1
             tmptrack = LiveUtils.getTrack(tracknum)
-            armed = tmptrack.arm and 1 or 0
-            li = [tracknum, armed]
+            foldable = tmptrack.is_foldable and 1 or 0
+            armed = (not foldable and tmptrack.arm) and 1 or 0
+            li = [tracknum, foldable, armed]
             for clipSlot in track:
                 clipnum = clipnum + 1
                 li.append(clipnum);

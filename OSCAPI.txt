@@ -44,7 +44,7 @@ CALLS
 /live/name/clipblock    (int track, int clip, int sizeX, int sizeY)     Returns a series of clip names in a area starting at (int track, int clip) of size (sizeX, sizeY)
 
 /live/arm               (int track)                                     Get arm status for track number track
-/live/arm               (int track, int armed/disarmed)                 Arms/disamrs track number track
+/live/arm               (int track, int armed/disarmed)                 Arms/disarms track number track
 /live/mute              (int track)                                     Get mute status for track number track
 /live/mute              (int track, int mute/unmute)                    Mutes/unmutes track number track
 /live/solo              (int track)                                     Get solo status for track number track
@@ -78,7 +78,7 @@ CALLS
 /live/master/pan        (int track, float pan(-1.0 to 1.0))             Sets master track's pan to pan
 
 /live/track/jump        (int track, float beats)                        Jumps in track's currently running session clip by beats
-/live/track/info        (int track)                                     Returns clip slot status' for all clips in a track in the form /live/track/info (tracknumber, armed  (clipnumber, state, length))
+/live/track/info        (int track)                                     Returns clip slot status' for all clips in a track in the form /live/track/info (tracknumber, is_group, armed  (clipnumber, state, length))
                                                                         [state: 0 = no clip, 1 = has clip, 2 = playing, 3 = triggered]
 /live/track/view        (int track)                                     Selects a track to view
 /live/return/view       (int track)                                     Selects a return track to view
