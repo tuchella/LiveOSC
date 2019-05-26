@@ -7,7 +7,7 @@ This is a fork of [LiveOSC](https://livecontrol.q3f.org/ableton-liveapi/liveosc/
 In a macOS terminal session:
 
 ```
-cd "/Applications/Ableton Live 10 Suite.app/Contents/App-Resources/MIDI Remote Scripts/LiveOSC"
+cd /Applications/Ableton*.app/Contents/App-Resources/MIDI\ Remote\ Scripts
 git clone git@github.com:ideoforms/LiveOSC.git
 ```
 
