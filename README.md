@@ -8,7 +8,7 @@ In a macOS terminal session:
 
 ```
 cd /Applications/Ableton*.app/Contents/App-Resources/MIDI\ Remote\ Scripts
-git clone git@github.com:ideoforms/LiveOSC.git
+git clone https://github.com/ideoforms/LiveOSC.git
 ```
 
 Then in Ableton Live:
