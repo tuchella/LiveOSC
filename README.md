@@ -19,4 +19,13 @@ Then in Ableton Live:
 
 The LiveOSC server will then start listening for commands.
 
+## Usage
 
+See [OSCAPI](OSCAPI.txt) for the raw API.
+
+For a simple Pythonic interface to interact with Live, use [PyLive](https://github.com/ideoforms/pylive).
+
+To receive logging messages, run the logging server with:
+```
+python2 ./LogServer.py
+```
