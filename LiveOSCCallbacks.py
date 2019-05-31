@@ -854,6 +854,8 @@ class LiveOSCCallbacks:
         /live/pitch     (int track, int clip)                                               Returns the pan of track number track as: /live/pan (int track, int clip, int coarse(-48 to 48), int fine (-50 to 50))
         /live/pitch     (int track, int clip, int coarse(-48 to 48), int fine (-50 to 50))  Sets clip number clip in track number track's pitch to coarse / fine
 
+        TODO: Unlike other callbacks, this does not include the track/pitch indices.
+
         """
         if len(msg) == 6:
             track = msg[2]
@@ -1115,10 +1117,13 @@ class LiveOSCCallbacks:
         # log("muting")
         trackNumber = msg[2]
         clipNumber = msg[3]
-        muted = msg[4]
         
         clip = LiveUtils.getClip(trackNumber, clipNumber)
-        clip.muted = bool(muted)
+        if len(msg) == 5:
+            muted = msg[4]
+            clip.muted = bool(muted)
+        else:
+            self.oscEndpoint.send("/live/clip/mute", (trackNumber, clipNumber, int(clip.muted)))
         
     def deviceCB(self, msg, source):
         ty = msg[0] == '/live/return/device' and 1 or 0

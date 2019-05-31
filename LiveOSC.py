@@ -727,8 +727,6 @@ class LiveOSC:
         #log("Slot changed" + str(self.clips[tid][cid]))
     
     def clip_changestate(self, clip, x, y):
-        # log("Listener: x: " + str(x) + " y: " + str(y) + " (not sending - DJJ)");
-
         playing = 1
         
         if clip.is_playing == 1:
@@ -737,12 +735,9 @@ class LiveOSC:
         if clip.is_triggered == 1:
             playing = 3
             
-		# DJJ: DON'T SEND CLIP INFO (was causing delays)
-		# DJJ 2015-09-14: Send it again (we want it for Boags)
+        # Warning: May cause slowdown when lots of clips active
         self.oscEndpoint.send('/live/clip/info', (x, y, playing))
-        
-        #log("Clip changed x:" + str(x) + " y:" + str(y) + " status:" + str(playing)) 
-        
+        log("Clip changed x:" + str(x) + " y:" + str(y) + " status:" + str(playing)) 
         
     # Mixer Callbacks
     def mixerv_changestate(self, type, tid, track, r = 0):
