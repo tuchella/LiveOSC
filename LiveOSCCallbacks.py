@@ -131,6 +131,7 @@ class LiveOSCCallbacks:
 
         self.callbackManager.add("/live/clip/add_note", self.addNoteCB)
         self.callbackManager.add("/live/clip/notes", self.getNotesCB)
+        self.callbackManager.add("/live/clip/create", self.createClipCB)
 
         self.callbackManager.add("/live/clip/mute", self.muteClipCB)
 
@@ -572,6 +573,20 @@ class LiveOSCCallbacks:
                 muted = 1
             bundle.append('/live/clip/note', (trackNumber, clipNumber, pitch, time, duration, velocity, muted))
         self.oscEndpoint.sendMessage(bundle)
+
+    def createClipCB(self, msg, source):
+        """
+        Messages:
+        /live/clip/create (int track, int slot)   Create a clip in [track, slot], length [length] beats
+        """
+        clipSlots = LiveUtils.getClipSlots()
+        track_index = msg[2]
+        clipslot_index = msg[3]
+        length = msg[4]
+
+        track = LiveUtils.getTrack(track_index)
+        clipslot = track.clip_slots[clipslot_index]
+        clipslot.create_clip(length)
     
     def armTrackCB(self, msg, source):
         """Called when a /live/arm message is received.
@@ -1119,6 +1134,7 @@ class LiveOSCCallbacks:
         clipNumber = msg[3]
         
         clip = LiveUtils.getClip(trackNumber, clipNumber)
+        log("clip is %s (vars %s)" % (clip, vars(clip)))
         if len(msg) == 5:
             muted = msg[4]
             clip.muted = bool(muted)
