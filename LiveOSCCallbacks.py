@@ -132,6 +132,7 @@ class LiveOSCCallbacks:
         self.callbackManager.add("/live/clip/add_note", self.addNoteCB)
         self.callbackManager.add("/live/clip/notes", self.getNotesCB)
         self.callbackManager.add("/live/clip/create", self.createClipCB)
+        self.callbackManager.add("/live/clip/delete", self.deleteClipCB)
 
         self.callbackManager.add("/live/clip/mute", self.muteClipCB)
 
@@ -577,7 +578,8 @@ class LiveOSCCallbacks:
     def createClipCB(self, msg, source):
         """
         Messages:
-        /live/clip/create (int track, int slot)   Create a clip in [track, slot], length [length] beats
+        /live/clip/create (int track, int slot, float length)
+        Create a clip in [track, slot], length [length] beats
         """
         clipSlots = LiveUtils.getClipSlots()
         track_index = msg[2]
@@ -587,6 +589,20 @@ class LiveOSCCallbacks:
         track = LiveUtils.getTrack(track_index)
         clipslot = track.clip_slots[clipslot_index]
         clipslot.create_clip(length)
+    
+    def deleteClipCB(self, msg, source):
+        """
+        Messages:
+        /live/clip/delete (int track, int slot)
+        Delete clip at [track, slot]
+        """
+        clipSlots = LiveUtils.getClipSlots()
+        track_index = msg[2]
+        clipslot_index = msg[3]
+
+        track = LiveUtils.getTrack(track_index)
+        clipslot = track.clip_slots[clipslot_index]
+        clipslot.delete_clip()
     
     def armTrackCB(self, msg, source):
         """Called when a /live/arm message is received.
