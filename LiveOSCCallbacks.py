@@ -29,13 +29,8 @@ import sys
 import re
 import time
 
-try:
-    sys.path.insert(0, "/Dropbox/Code/isobar/isobar")
-    from util import *
-except:
-    pass
-
 from Logger import log
+
 
 class LiveOSCCallbacks:
     def __init__(self, c_instance, oscEndpoint):
@@ -658,8 +653,53 @@ class LiveOSCCallbacks:
             for slot in track.clip_slots:
                 if slot.clip != None and slot.clip.muted:
                     slot.delete_clip()
-            
+
+    def nameToMIDI(self, name):
+        """ Maps a MIDI note name (D3, C#6) to a value.
+        Assumes that middle C is C4. """
+        note_names = [
+            [ "C" ],
+            [ "C#", "Db" ],
+            [ "D" ],
+            [ "D#", "Eb" ],
+            [ "E" ],
+            [ "F" ],
+            [ "F#", "Gb" ],
+            [ "G" ],
+            [ "G#", "Ab" ],
+            [ "A" ],
+            [ "A#", "Bb" ],
+            [ "B" ]
+        ]
+
+        if name[-1].isdigit():
+            octave = int(name[-1])
+            name = name[:-1]
+        else:
+            octave = 0
+
+        try:
+            index = note_names.index([nameset for nameset in note_names if name in nameset][0])
+            return octave * 12 + index
+        except:
+            return None
+                    
     def filterClipsCB(self, msg, source):
+        def bipolar_diverge(maximum):
+            """ returns [0, 1, -1, ...., maximum, -maximum ] """
+            sequence = list(sum(list(zip(list(range(maximum + 1)), list(range(0, -maximum - 1, -1)))), ()))
+            sequence.pop(0)
+            return sequence
+
+        def filter_tone_row(source, target, bend_limit = 7):
+            """ filters the notes in <source> by the permitted notes in <target>.
+            returns a tuple (<bool> acceptable, <int> pitch_bend) """
+            bends = bipolar_diverge(bend_limit)
+            for bend in bends:
+                if all(((note + bend) % 12) in target for note in source):
+                    return (True, bend)
+            return (False, 0)
+
         if not self.clip_notes_cache:
             log("no cache found, creating")
             self._filterClipsMakeCache()
@@ -668,8 +708,7 @@ class LiveOSCCallbacks:
             t0 = time.time()
             note_names = msg[2:]
             log("filtering clips according to %s" % note_names)
-            log("nametomidi is %s" % nametomidi)
-            target = tuple(nametomidi(note) for note in note_names)
+            target = tuple(self.nameToMIDI(note) for note in note_names)
 
             clip_states = {}
             if target in self.clip_tone_row_cache:
@@ -714,7 +753,7 @@ class LiveOSCCallbacks:
                             notes_found_str = match.group(2)
                             notes_found_str = re.sub("[1-9]", "", notes_found_str)
                             notes_found = notes_found_str.split("-")
-                            notes = [ nametomidi(note) for note in notes_found ]
+                            notes = [ self.nameToMIDI(note) for note in notes_found ]
 
                             # in case we have spurious/nonsense notes, filter them out
                             notes = filter(lambda n: n is not None, notes)
@@ -1376,7 +1415,10 @@ class LiveOSCCallbacks:
             LiveUtils.getSong().clip_trigger_quantization = msg[2]
 
     def distributeGroupsCB(self, msg, source):
-        outputs = range(1, 64)
+        if len(msg) == 3:
+            outputs = range(1, msg[2] + 1)
+        else:
+            outputs = range(1, 64)
         index = 0
         for track in LiveUtils.getTracks():
             if track.is_foldable:
