@@ -143,6 +143,7 @@ class LiveOSCCallbacks:
         self.callbackManager.add("/live/clear_inactive", self.clearInactiveCB)
         self.callbackManager.add("/live/filter_clips", self.filterClipsCB)
         self.callbackManager.add("/live/distribute_groups", self.distributeGroupsCB)
+        self.callbackManager.add("/live/play/group_scene", self.playGroupSceneCB)
 
         self.clip_notes_cache = {}
 
@@ -1429,3 +1430,28 @@ class LiveOSCCallbacks:
                 track.current_output_sub_routing = str(output)
                 track.mixer_device.sends[0].value = 1.0
 
+    def playGroupSceneCB(self, msg, source):
+        if len(msg) == 4:
+            track_index = msg[2]
+            clip_index = msg[3]
+            tracks = LiveUtils.getTracks()
+            group = tracks[track_index]
+            if group.is_foldable:
+                target_tracks = []
+                for track in tracks[track_index+1:]:
+                    if track.is_foldable:
+                        break
+                    else:
+                        target_tracks.append(track)
+                for index, track in enumerate(target_tracks):
+                    for cindex, clipslot in enumerate(track.clip_slots[clip_index:]):
+                        if clipslot.clip is None:
+                            track.stop_all_clips()
+                            break
+                        elif not clipslot.clip.muted:
+                            clipslot.fire()
+                            break
+            else:
+                log("playGroupScene: Target is not a group (ID %d)" % track_index)
+        else:
+            log("playGroupScene: Too few args")
