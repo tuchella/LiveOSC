@@ -85,8 +85,7 @@ def getTrack(num):
 def stopTrack(trackNumber):
     """Stops all clips in track number (trackNumber)"""
     track = getTrack(trackNumber)
-    for clipSlot in track.clip_slots:
-        clipSlot.stop()
+    track.stop_all_clips()
     
 def getTempo():
     """Returns the current song tempo"""
