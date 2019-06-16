@@ -123,9 +123,9 @@ class LiveOSC:
                 # Commented for stability
                 self.time = 0
                 doc.add_current_song_time_listener(self.current_song_time_changed)
-            except:
-                self.oscEndpoint.send('/remix/echo', 'setting up basicAPI failed')
-                log('setting up basicAPI failed');
+            except Exception, e:
+                self.oscEndpoint.send('/remix/echo', 'setting up basicAPI failed: %s' % e)
+                log('setting up basicAPI failed: %s' % e);
                 return
             
             # If our OSC server is listening, try processing incoming requests.
