@@ -142,6 +142,7 @@ class LiveOSCCallbacks:
         self.callbackManager.add("/live/deactivate", self.deactivateCB)
         self.callbackManager.add("/live/clear_inactive", self.clearInactiveCB)
         self.callbackManager.add("/live/filter_clips", self.filterClipsCB)
+        self.callbackManager.add("/live/unfilter_group", self.unfilterGroupCB)
         self.callbackManager.add("/live/distribute_groups", self.distributeGroupsCB)
         self.callbackManager.add("/live/play/group_scene", self.playGroupSceneCB)
 
@@ -684,7 +685,22 @@ class LiveOSCCallbacks:
             return octave * 12 + index
         except:
             return None
-                    
+
+    def unfilterGroupCB(self, msg, source):
+        track_index = msg[2]
+        tracks = LiveUtils.getTracks()
+        group = tracks[track_index]
+        if group.is_foldable:
+            for track in tracks[track_index+1:]:
+                if track.is_foldable:
+                    break
+                else:
+                    for clipslot in track.clip_slots:
+                        if clipslot.clip is not None:
+                            clipslot.clip.muted = False
+        else:
+            log("unfilterGroupCB: Target is not a group (ID %d)" % track_index)
+                
     def filterClipsCB(self, msg, source):
         def bipolar_diverge(maximum):
             """ returns [0, 1, -1, ...., maximum, -maximum ] """
