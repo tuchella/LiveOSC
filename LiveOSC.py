@@ -736,8 +736,9 @@ class LiveOSC:
             playing = 3
             
         # Warning: May cause slowdown when lots of clips active
-        self.oscEndpoint.send('/live/clip/info', (x, y, playing))
-        log("Clip changed x:" + str(x) + " y:" + str(y) + " status:" + str(playing)) 
+        # DJJ removing - is this what's causing pops?
+        # self.oscEndpoint.send('/live/clip/info', (x, y, playing))
+        # log("Clip changed x:" + str(x) + " y:" + str(y) + " status:" + str(playing)) 
         
     # Mixer Callbacks
     def mixerv_changestate(self, type, tid, track, r = 0):

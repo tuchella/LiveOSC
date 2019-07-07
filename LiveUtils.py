@@ -234,8 +234,8 @@ def stopClip(track, clip):
 
 def getClip(track, clip):
     """Returns clip number (clip) in track (track)"""
-    clips = getClips()
-    return clips[track][clip]
+    tracks = getTracks()
+    return tracks[track].clip_slots[clip].clip
 
 def clipName(track, clip, name = None):
     """Gets/changes the name of clip number (clip) in track (track)
