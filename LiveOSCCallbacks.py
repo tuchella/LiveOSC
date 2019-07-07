@@ -674,17 +674,10 @@ class LiveOSCCallbacks:
             [ "B" ]
         ]
 
-        if name[-1].isdigit():
-            octave = int(name[-1])
-            name = name[:-1]
-        else:
-            octave = 0
-
-        try:
-            index = note_names.index([nameset for nameset in note_names if name in nameset][0])
-            return octave * 12 + index
-        except:
-            return None
+        for index, names in enumerate(note_names):
+            if name in names:
+                return index
+        return None
 
     def unfilterGroupCB(self, msg, source):
         track_index = msg[2]
@@ -770,7 +763,13 @@ class LiveOSCCallbacks:
                             notes_found_str = match.group(2)
                             notes_found_str = re.sub("[1-9]", "", notes_found_str)
                             notes_found = notes_found_str.split("-")
-                            notes = [ self.nameToMIDI(note) for note in notes_found ]
+                            notes = []
+                            for note in notes_found:
+                                note_midi = self.nameToMIDI(note)
+                                if note_midi is not None:
+                                    notes.append(note_midi)
+                                else:
+                                    log(" %s (%s): invalid notes" % (slot.clip.name, track.name))
 
                             # in case we have spurious/nonsense notes, filter them out
                             notes = filter(lambda n: n is not None, notes)
