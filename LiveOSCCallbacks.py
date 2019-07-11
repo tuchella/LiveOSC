@@ -1443,7 +1443,6 @@ class LiveOSCCallbacks:
                 log(" - rerouting group track %s (%d), current subrouting = %s" % (track, index, track.current_output_sub_routing))
                 track.current_output_routing = "Ext. Out"
                 track.current_output_sub_routing = str(output)
-                track.mixer_device.sends[0].value = 1.0
 
     def playGroupSceneCB(self, msg, source):
         if len(msg) == 4:

@@ -223,6 +223,7 @@ class LiveOSC:
         self.refresh_state()            
             
     def refresh_state(self):
+        log("Refreshing state")
         self.add_clip_listeners()
         self.add_mixer_listeners()
         self.add_scene_listeners()
@@ -383,6 +384,7 @@ class LiveOSC:
         self.cclisten = {}
         
     def add_clip_listeners(self):
+        return
         self.rem_clip_listeners()
     
         tracks = self.getslots()
