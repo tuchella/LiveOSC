@@ -14,6 +14,7 @@ class LoggerRequestHandler(SocketServer.BaseRequestHandler):
             data = self.request.recv(1024)
             if len(data) > 0:
                 sys.stdout.write(data)
+                sys.stdout.flush()
 
     def finish(self):
         print self.client_address, 'disconnected!'
