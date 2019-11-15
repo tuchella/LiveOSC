@@ -69,6 +69,10 @@ def getScenes():
 def getScene(num):
     """Returns scene number (num) (starting at 0)"""
     return getSong().scenes[num]
+    
+def createScene(num):
+    """Create a scene at the index (num). -1 creates a scene at the end"""
+    return getSong().create_scene(num)
 
 def launchScene(scene):
     """Launches scene number (scene)"""
