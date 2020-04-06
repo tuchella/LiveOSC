@@ -47,7 +47,8 @@ class LiveOSCCallbacks:
         self.callbackManager.add("/live/play/continue", self.playContinueCB)
         self.callbackManager.add("/live/play/selection", self.playSelectionCB)
         self.callbackManager.add("/live/play/clip", self.playClipCB)
-        self.callbackManager.add("/live/play/scene", self.playSceneCB)  
+        self.callbackManager.add("/live/play/scene", self.playSceneCB)
+        self.callbackManager.add("/live/scene/create", self.createSceneCB)
         self.callbackManager.add("/live/stop", self.stopCB)
         self.callbackManager.add("/live/stop/clip", self.stopClipCB)
         self.callbackManager.add("/live/stop/track", self.stopTrackCB)
@@ -300,6 +301,18 @@ class LiveOSCCallbacks:
         if len(msg) == 3:
             scene = msg[2]
             LiveUtils.launchScene(scene)
+    
+    def createSceneCB(self, msg, source):
+        """Called when a /live/scene/create message is received.
+
+        Messages:
+        /live/scene/create    (int scene)     create a scene at the index
+        """
+        if len(msg) == 3:
+            scene = msg[2]
+            LiveUtils.createScene(scene)
+            
+            
     
     def stopCB(self, msg, source):
         """Called when a /live/stop message is received.
