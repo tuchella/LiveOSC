@@ -207,8 +207,8 @@ class OSCEndpoint:
 
         except Exception, e:
             err, message=e
-            if err != errno.EAGAIN:                                 # no data on socket
-                log('error handling message, errno ' + str(errno) + ': ' + message)
+            if err != errno.WSAEWOULDBLOCK and err != errno.EAGAIN:                                 # no data on socket
+                log('error handling message, errno ' + str(errno.errorcode[err]) + ': ' + message)
 
     def shutdown(self):
         """
